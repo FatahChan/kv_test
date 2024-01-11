@@ -6,7 +6,7 @@ const DAY = 24 * HOUR;
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const requestBodyVariant = body.variant;
+  const requestBodyVariant = body.variant.toString();
   if (!requestBodyVariant) {
     return new Response("Missing variant", { status: 400 });
   }
@@ -22,8 +22,9 @@ export async function POST(request: Request) {
     return Response.json({ variant });
   }
 
-  const setRequests = [];
-  setRequests.push(kv.hset(`user:${ip}`, { variant: requestBodyVariant }));
-  setRequests.push(kv.hset(`user:${ip}`, { timestamp: Date.now().toString() }));
+  kv.hset(`user:${ip}`, {
+    variant: requestBodyVariant,
+    timestamp: Date.now().toString(),
+  });
   return Response.json({ variant: requestBodyVariant });
 }
