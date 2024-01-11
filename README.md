@@ -19,3 +19,9 @@ KV_REST_API_TOKEN=""
 KV_REST_API_URL=""
 KV_URL=""
 ```
+
+Fourth, Deploy the app
+
+```
+vercel deploy
+```
