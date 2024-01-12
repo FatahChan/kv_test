@@ -13,18 +13,15 @@ export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for");
 
   // check if user has already been assigned a variant and not expired
-  // if so, return get variant from redis and return it
-  const getRequests = [];
-  getRequests.push(kv.hget(`user:${ip}`, "variant"));
-  getRequests.push(kv.hget(`user:${ip}`, "timestamp"));
-  const [variant, timestamp] = await Promise.all(getRequests);
-  if (timestamp && Date.now() - Number(timestamp) < 3 * DAY) {
+  // if so, return get variant from redis and return it);
+  const variant = await kv.hget(`user:${ip}`, "variant");
+  if (variant) {
     return Response.json({ variant });
   }
-
-  kv.hset(`user:${ip}`, {
+  await kv.hset(`user:${ip}`, {
     variant: requestBodyVariant,
     timestamp: Date.now().toString(),
   });
+  kv.pexpire(`user:${ip}`, 3 * DAY);
   return Response.json({ variant: requestBodyVariant });
 }
